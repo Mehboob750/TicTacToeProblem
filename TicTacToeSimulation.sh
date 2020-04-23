@@ -108,23 +108,37 @@ function checkDiagonal(){
 	fi
 }
 
-
-
 function  playerMove()
 {
 	echo "Player Turn"
 	printBoard
 	read -p "Enter Position : " position;
-         if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
-         then
-				BOARD[$position]=$PLAYER_SYMBOL;
-			else
-				echo "Symbol is alreday present there choose different position";
-			playerMove;
-        	fi
-        toss=0;
+	if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
+   then
+		BOARD[$position]=$PLAYER_SYMBOL;
+	else
+		echo "Symbol is alreday present there choose different position";
+		playerMove;
+   fi
+      toss=0;
 	return $position;
 }
+
+function computerMove(){
+	echo "Computer Turn"
+	position=$((1+RANDOM%10));
+	if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
+   then
+       BOARD[$position]=$COMPUTER_SYMBOL;
+   else
+       echo "Symbol is alreday present there choose different position";
+       computerMove;
+   fi
+	toss=1;
+	return $position;
+}
+
+
 
 function checkHorizontalWin(){
       position=$1;
@@ -202,6 +216,8 @@ function playGame(){
 resetBoard;
 checkFirst
 toss=$?;
+while [ $$opponentTurn != 1 ]
+do
 	if [ $toss == $PLAYER_TOSS ]
    then
 		playerMove
@@ -212,6 +228,18 @@ toss=$?;
 		checkDiagonalWin $position $PLAYER_SYMBOL;
 		checkTie;
 		checkOpponentTurn;
+		toss=0;
+	else
+		computerMove
+		position=$?;
+		printBoard;
+      checkHorizontalWin $position $COMPUTER_SYMBOL;
+      checkColumnWin $position $COMPUTER_SYMBOL;
+      checkDiagonalWin $position $COMPUTER_SYMBOL;
+      checkTie;
+      checkOpponentTurn;
+		toss=1;
 	fi
+done
 }
 playGame;
