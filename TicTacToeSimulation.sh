@@ -121,19 +121,14 @@ function  playerMove()
 		playerMove;
    fi
       toss=0;
+	playerPosition=$position;
 	return $position;
 }
 
 function computerMove(){
 	echo "Computer Turn"
-	position=$((1+RANDOM%10));
-	if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
-   then
-       BOARD[$position]=$COMPUTER_SYMBOL;
-   else
-       echo "Symbol is alreday present there choose different position";
-       computerMove;
-   fi
+  	checkWin;
+	position=$?;
 	toss=1;
 	return $position;
 }
@@ -211,12 +206,95 @@ function checkOpponentTurn(){
 	fi
 }
 
+function checkCenter(){
+	position=5;
+	if [[ "${BOARD[$position]}" == "$INITIAL_SYMBOL" ]]
+   then
+		return 1;
+	fi
+	return 0;
+}
+
+function  checkCorner()
+{
+	for (( position=1; position<$BOARD_POSITION; position=$(($position+2)) ))
+	do
+		if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
+		then
+			return $position;
+			break;
+		fi
+
+		if [[ $position == 3 ]]
+      then
+			position=$(($position+2));
+		fi
+	done
+ return 0;
+}
+
+function checkWin(){
+	checkCenter;
+	true=$?;
+	if [[ $true == 1 ]]
+	then
+		position=5;
+		BOARD[$position]=$COMPUTER_SYMBOL;
+	else
+		if [[ "${BOARD[$playerPosition]}" == "$INITIAL_SYMBOL" ]]
+		then
+			BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
+		else
+			winningPosition;
+		fi
+	fi
+	return $position;
+}
+
+function winningPosition(){
+   if [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
+   then
+      checkCorner;
+      position=$?;
+      BOARD[$position]=$COMPUTER_SYMBOL;
+   elif [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[1]} == $COMPUTER_SYMBOL ]]
+   then
+      if [[ ${BOARD[9]}==$INITIAL_SYMBOL ]]
+      then
+         position=9;
+         BOARD[$position]=$COMPUTER_SYMBOL;
+      fi
+   elif [[ ${BOARD[9]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
+   then
+      if [[ ${BOARD[1]}==$INITIAL_SYMBOL ]]
+      then
+         position=1;
+         BOARD[$position]=$COMPUTER_SYMBOL;
+      fi
+   elif [[ ${BOARD[3]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
+   then
+      if [[ ${BOARD[7]}==$INITIAL_SYMBOL ]]
+      then
+         position=7;
+         BOARD[$position]=$COMPUTER_SYMBOL;
+      fi
+   elif [[ ${BOARD[7]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
+   then
+      if [[ ${BOARD[3]}==$INITIAL_SYMBOL ]]
+      then
+         position=3;
+         BOARD[$position]=$COMPUTER_SYMBOL;
+      fi
+	fi
+}
+
 
 function playGame(){
 resetBoard;
 checkFirst
 toss=$?;
-while [ $$opponentTurn != 1 ]
+count=1;
+while [[ $opponentTurn != 1 ]]
 do
 	if [ $toss == $PLAYER_TOSS ]
    then
