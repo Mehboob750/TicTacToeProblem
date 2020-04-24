@@ -127,7 +127,7 @@ function  playerMove()
 
 function computerMove(){
 	echo "Computer Turn"
-  	checkWin;
+	checkWin;
 	position=$?;
 	toss=1;
 	return $position;
@@ -172,11 +172,11 @@ function checkColumnWin(){
 function checkDiagonalWin(){
    position=$1;
    symbol=$2;
-   if [[ $position == 1 ]] || [[ $position == 5 ]] || [[ $position == 9 ]]
+   if [[ $position == 1 ]] || [[ $position == 9 ]]
    then
       position=1;
       checkDiagonal $position $symbol;
-   elif  [[ $position == 3 ]] || [[ $position == 5 ]] || [[ $position == 7 ]]
+   elif  [[ $position == 3 ]] || [[ $position == 7 ]]
    then
       position=3;
       checkDiagonal $position $symbol;
@@ -241,12 +241,18 @@ function checkWin(){
 		position=5;
 		BOARD[$position]=$COMPUTER_SYMBOL;
 	else
-		if [[ "${BOARD[$playerPosition]}" == "$INITIAL_SYMBOL" ]]
-		then
-			BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
-		else
-			winningPosition;
-		fi
+		opponentBlock;
+		true1=$?;
+	fi
+#		if [[ "${BOARD[$playerPosition]}" == "$INITIAL_SYMBOL" ]]
+#		then
+#			BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
+#		else
+#			winningPosition;
+#		fi
+	if [[ $true1==0 ]]
+	then
+		  winningPosition;
 	fi
 	return $position;
 }
@@ -286,6 +292,36 @@ function winningPosition(){
          BOARD[$position]=$COMPUTER_SYMBOL;
       fi
 	fi
+}
+
+function opponentBlock(){
+	if [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+1]} ]]
+	then
+		BOARD[$playerPosition-1]=$COMPUTER_SYMBOL;
+		return 1;
+	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-1]} ]]
+	then
+		BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
+		return 1;
+	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+3]} ]]
+	then
+		 BOARD[$playerPosition+6]=$COMPUTER_SYMBOL;
+		 return 1;
+	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+6]} ]]
+   then
+	    BOARD[$playerPosition+3]=$COMPUTER_SYMBOL;
+		 return 1;
+	 elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-6]} ]]
+    then
+       BOARD[$playerPosition-3]=$COMPUTER_SYMBOL;
+       return 1;
+	 elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-3]} ]]
+    then
+       BOARD[$playerPosition-6]=$COMPUTER_SYMBOL;
+       return 1;
+
+	fi
+return 0;
 }
 
 
