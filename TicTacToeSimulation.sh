@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #CONSTATNTS
 BOARD_SIZE=3;
 BOARD_POSITION=10;
@@ -40,7 +40,7 @@ function printBoard(){
 function checkRow(){
 	position=$1;
 	symbol=$2;
-   if [[ ${BOARD[$position]} == ${BOARD[$position+1]} ]] && [[ ${BOARD[$position+1]} == ${BOARD[$position+2]} ]] &&  [[ ${BOARD[$position]} == $symbol ]] 
+   if [[ ${BOARD[$position]} == ${BOARD[$position+1]} ]] && [[ ${BOARD[$position+1]} == ${BOARD[$position+2]} ]] &&  [[ ${BOARD[$position]} == $symbol ]]
 	then
 		printBoard;
 		if [[ $symbol == $PLAYER_SYMBOL ]]
@@ -54,7 +54,6 @@ function checkRow(){
 			break;
 		fi
    fi
-
 }
 
 function checkColumn(){
@@ -108,8 +107,7 @@ function checkDiagonal(){
 	fi
 }
 
-function  playerMove()
-{
+function  playerMove(){
 	echo "Player Turn"
 	printBoard
 	read -p "Enter Position : " position;
@@ -124,16 +122,6 @@ function  playerMove()
 	playerPosition=$position;
 	return $position;
 }
-
-function computerMove(){
-	echo "Computer Turn"
-	checkWin;
-	position=$?;
-	toss=1;
-	return $position;
-}
-
-
 
 function checkHorizontalWin(){
       position=$1;
@@ -176,7 +164,7 @@ function checkDiagonalWin(){
    then
       position=1;
       checkDiagonal $position $symbol;
-   elif  [[ $position == 3 ]] || [[ $position == 7 ]]
+   elif [[ $position == 3 ]] || [[ $position == 5 ]] || [[ $position == 7 ]]
    then
       position=3;
       checkDiagonal $position $symbol;
@@ -196,7 +184,6 @@ function checkTie()
 				(( position++ ));
 		fi
 	done
-
 }
 
 function checkOpponentTurn(){
@@ -208,7 +195,7 @@ function checkOpponentTurn(){
 
 function checkCenter(){
 	position=5;
-	if [[ "${BOARD[$position]}" == "$INITIAL_SYMBOL" ]]
+	if [[ ${BOARD[$position]} == $INITIAL_SYMBOL ]]
    then
 		return 1;
 	fi
@@ -219,7 +206,7 @@ function  checkCorner()
 {
 	for (( position=1; position<$BOARD_POSITION; position=$(($position+2)) ))
 	do
-		if [ ${BOARD[$position]} == $INITIAL_SYMBOL ]
+		if [[ "${BOARD[$position]}" == "$INITIAL_SYMBOL" ]]
 		then
 			return $position;
 			break;
@@ -233,7 +220,93 @@ function  checkCorner()
  return 0;
 }
 
-function checkWin(){
+function myWin(){
+   if [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition+1]} ]]
+   then
+      BOARD[$myPosition-1]=$COMPUTER_SYMBOL;
+      return 1;
+   elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition-1]} ]]
+   then
+      BOARD[$myPosition+1]=$COMPUTER_SYMBOL;
+      return 1;
+   elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition+3]} ]]
+   then
+       BOARD[$myPosition+6]=$COMPUTER_SYMBOL;
+       return 1;
+   elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition+6]} ]]
+   then
+       BOARD[$myPosition+3]=$COMPUTER_SYMBOL;
+       return 1;
+    elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition-6]} ]]
+    then
+       BOARD[$myPosition-3]=$COMPUTER_SYMBOL;
+       return 1;
+    elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition-3]} ]]
+    then
+       BOARD[$myPosition-6]=$COMPUTER_SYMBOL;
+       return 1;
+   fi
+return 0;
+}
+
+function opponentBlock(){
+		if [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+1]} ]]
+		then
+			BOARD[$playerPosition-1]=$COMPUTER_SYMBOL;
+			return 1;
+ 		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+2]} ]]
+      then
+         BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
+			return 1;
+		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-3]} ]]
+      then
+         BOARD[$playerPosition+3]=$COMPUTER_SYMBOL;
+         return 1;
+		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-2]} ]]
+      then
+         BOARD[$playerPosition-1]=$COMPUTER_SYMBOL;
+         return 1;
+
+		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-1]} ]]
+		then
+			BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
+			return 1;
+		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+3]} ]]
+		then
+			 BOARD[$playerPosition+6]=$COMPUTER_SYMBOL;
+		 	return 1;
+		elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+6]} ]]
+   	then
+	    	BOARD[$playerPosition+3]=$COMPUTER_SYMBOL;
+		 	return 1;
+	 	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-6]} ]]
+    	then
+       	BOARD[$playerPosition-3]=$COMPUTER_SYMBOL;
+       	return 1;
+	 	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-3]} ]]
+    	then
+       	BOARD[$playerPosition-6]=$COMPUTER_SYMBOL;
+       	return 1;
+		else
+			return 0;
+		fi
+}
+
+function compWin(){
+	if [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition-3]} ]]
+   then
+   	BOARD[$myPosition+3]=$COMPUTER_SYMBOL;
+      return 1;
+ 	elif [[ ${BOARD[$myPosition]} == ${BOARD[$myPosition+3]} ]]
+   then
+      BOARD[$myPosition+6]=$COMPUTER_SYMBOL;
+      return 1;
+	else
+		return 0;
+	fi
+}
+
+function computerMove(){
 	checkCenter;
 	true=$?;
 	if [[ $true == 1 ]]
@@ -241,89 +314,24 @@ function checkWin(){
 		position=5;
 		BOARD[$position]=$COMPUTER_SYMBOL;
 	else
-		opponentBlock;
-		true1=$?;
+		compWin;
+		correct1=$?;
 	fi
-#		if [[ "${BOARD[$playerPosition]}" == "$INITIAL_SYMBOL" ]]
-#		then
-#			BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
-#		else
-#			winningPosition;
-#		fi
-	if [[ $true1==0 ]]
+
+	if [[ $correct1 == 0 ]]
+   then
+   	opponentBlock;
+      correct=$?;
+   fi
+
+	if [[ $correct == 0 ]]
 	then
-		  winningPosition;
+		BOARD[$position+1]=$COMPUTER_SYMBOL;
 	fi
-	return $position;
+	toss=1;
+	myPosition=$position;
+return $position;
 }
-
-function winningPosition(){
-   if [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
-   then
-      checkCorner;
-      position=$?;
-      BOARD[$position]=$COMPUTER_SYMBOL;
-   elif [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[1]} == $COMPUTER_SYMBOL ]]
-   then
-      if [[ ${BOARD[9]}==$INITIAL_SYMBOL ]]
-      then
-         position=9;
-         BOARD[$position]=$COMPUTER_SYMBOL;
-      fi
-   elif [[ ${BOARD[9]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
-   then
-      if [[ ${BOARD[1]}==$INITIAL_SYMBOL ]]
-      then
-         position=1;
-         BOARD[$position]=$COMPUTER_SYMBOL;
-      fi
-   elif [[ ${BOARD[3]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
-   then
-      if [[ ${BOARD[7]}==$INITIAL_SYMBOL ]]
-      then
-         position=7;
-         BOARD[$position]=$COMPUTER_SYMBOL;
-      fi
-   elif [[ ${BOARD[7]} == $COMPUTER_SYMBOL ]] && [[ ${BOARD[5]} == $COMPUTER_SYMBOL ]]
-   then
-      if [[ ${BOARD[3]}==$INITIAL_SYMBOL ]]
-      then
-         position=3;
-         BOARD[$position]=$COMPUTER_SYMBOL;
-      fi
-	fi
-}
-
-function opponentBlock(){
-	if [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+1]} ]]
-	then
-		BOARD[$playerPosition-1]=$COMPUTER_SYMBOL;
-		return 1;
-	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-1]} ]]
-	then
-		BOARD[$playerPosition+1]=$COMPUTER_SYMBOL;
-		return 1;
-	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+3]} ]]
-	then
-		 BOARD[$playerPosition+6]=$COMPUTER_SYMBOL;
-		 return 1;
-	elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition+6]} ]]
-   then
-	    BOARD[$playerPosition+3]=$COMPUTER_SYMBOL;
-		 return 1;
-	 elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-6]} ]]
-    then
-       BOARD[$playerPosition-3]=$COMPUTER_SYMBOL;
-       return 1;
-	 elif [[ ${BOARD[$playerPosition]} == ${BOARD[$playerPosition-3]} ]]
-    then
-       BOARD[$playerPosition-6]=$COMPUTER_SYMBOL;
-       return 1;
-
-	fi
-return 0;
-}
-
 
 function playGame(){
 resetBoard;
