@@ -363,5 +363,10 @@ do
 		toss=1;
 	fi
 done
+if [[ $opponentTurn == 1 ]]
+then
+	echo "Game Over"
+	break;
+fi
 }
 playGame;
