@@ -147,7 +147,7 @@ function checkColumnWin(){
    then
       position=1;
       checkColumn $position $symbol;
-   elif  [[ $position == 2 ]] || [[ $position == 5 ]] || [[ $position == 8 ]]
+   elif [[ $position == 2 ]] || [[ $position == 5 ]] || [[ $position == 8 ]]
    then
       position=2;
       checkColumn $position $symbol;
